@@ -54,8 +54,102 @@ flights |>
 
 # Flew to Houston (IAH or HOU)
 flights |> 
-  filter (dest == 'IAH' | )
+  filter (dest == 'IAH' |dest == 'HOU' )
 # Were operated by United, American, or Delta
+flights |> 
+  distinct(carrier)
+flights |> 
+  filter(carrier == 'UA'  | carrier == "AA" | carrier == "DL")
+flights |> 
+  filter(carrier %in% c('UA', 'AA', 'DL'))
 # Departed in summer (July, August, and September)
+flights |> 
+  filter (month %in% c('7', '8', '9'))
+
 # Arrived more than two hours late but didn’t leave late
-# Were delayed by at least an hour, but made up over 30 minutes in flight
+flights |>
+  filter (arr_time >= 120 & dep_delay <= 0)
+
+#Sort flights to find the flights with the longest departure delays. 
+flights |> 
+  arrange (desc(dep_delay))
+#Find the flights that left earliest in the morning.
+flights |> 
+  arrange (dep_time)
+
+#Sort flights to find the fastest flights. (Hint: Try including a math calculation inside of your function.)
+flights |> 
+  mutate(speed = distance / air_time) |>  # Add a new column for speed
+  arrange(desc(speed))
+
+#Was there a flight on every day of 2013?
+
+# Get distinct combinations of year, month, and day
+unique_days <- flights |> 
+  distinct(year, month, day)
+
+# Check if there was a flight on every day of 2013
+total_days_2013 <- 365  # 2013 was not a leap year
+
+if (nrow(unique_days) == total_days_2013) {
+  print("Yes, there was a flight on every day of 2013.")
+} else {
+  print("No, there wasn't a flight on every day of 2013.")
+}
+
+#Columns 
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60
+  ) |> 
+  select(gain , dep_delay, arr_delay, )
+
+#add column to the left of df so we can see what's happening. 
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60,
+    .before = 1
+  )
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    hours = air_time / 60,
+    gain_per_hour = gain / hours,
+    .keep = "used"
+  )
+
+flights |> 
+  select(year, month, day)
+
+#select columns between year and day 
+flights |> 
+  select(year:day)
+#all columns except year and day 
+flights |> 
+  select(!year:day)
+
+#rename variables 
+flights |> 
+  select(tail_num = tailnum)
+
+flights |> 
+  rename(tail_num = tailnum)
+
+#janitor::clean_names() useful for cleaning a lot of names 
+
+#move variables to the front 
+flights |> 
+  relocate(time_hour, air_time)
+
+#Compare dep_time, sched_dep_time, and dep_delay. How would you expect those three numbers to be related?
+flights |> 
+  relocate(dep_time, sched_dep_time, dep_delay)
+
+#Pipe 
+flights |> 
+  filter(dest == "IAH") |> 
+  mutate(speed = distance / air_time * 60) |> 
+  select(year:day, dep_time, carrier, flight, speed) |> 
+  arrange(desc(speed))
